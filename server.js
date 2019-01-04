@@ -93,11 +93,17 @@ app.get("/vote/:questionId/:vote", (req, res) => {
     QuestionModel.findOne({_id: questionId}, (err, questionFound) => {
         if (err) console.log(err);
         else {
-            questionFound.set({vote: question[vote] ++});
+            questionFound.set({vote: questionFound[vote] ++});
             questionFound.save();
             res.redirect("/");
         }
     })
+    // QuestionModel.updateOne(
+    //     {_id: quesstionId},
+    //     {
+    //         $set: {vote: questionFound[vote]++}
+    //     })
+    // res.redirect("/");
 });
 
 app.get("/about", (req, res) =>{
