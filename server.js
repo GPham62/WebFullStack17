@@ -98,12 +98,6 @@ app.get("/vote/:questionId/:vote", (req, res) => {
             res.redirect("/");
         }
     })
-    // QuestionModel.updateOne(
-    //     {_id: quesstionId},
-    //     {
-    //         $set: {vote: questionFound[vote]++}
-    //     })
-    // res.redirect("/");
 });
 
 app.get("/about", (req, res) =>{
