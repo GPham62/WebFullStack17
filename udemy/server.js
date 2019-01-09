@@ -1,11 +1,10 @@
-let currentPage = 0;
+
 $("#udemy").on("submit", function(event){
     $("#cardSearch .row").empty();
     $("#loading").attr('style', '');
     event.preventDefault();
     const paidSelection = $('#paidSelection').val();
     const searchValue = $('#searchValue').val();
-    currentPage = 1;
     let params = {
         type: "GET",
         success: function(data){
@@ -26,30 +25,35 @@ $("#udemy").on("submit", function(event){
                 </>
                 `);  
             }
+            $(window).scroll(function(){
+                if ($(this).scrollTop() + $(window).height() == $(document).height()){
+                    $("#loading").attr('style', '');
+                    $.ajax({
+                        url: data.next,
+                        type: "GET",
+                        success: function(newData){
+                            console.log(newData);
+                            $("#loading").attr('style', 'visibility: hidden');
+                        },
+                        error: function(err){
+                            console.log("error!" + err);
+                        }
+                    })
+                }
+            });
         },
         error: function(err){
             console.log("error!" + err);
         },
     }
     if (paidSelection == 0){
-        params.url = "https://api.techkids.vn/udemy/courses?search=" + searchValue +"$page=" + currentPage + "&page_size=12";
+        params.url = "https://api.techkids.vn/udemy/courses?search=" + searchValue + "&page=1&page_size=12";
     }
     else if (paidSelection == 1){
-        params.url = "https://api.techkids.vn/udemy/courses?search=" + searchValue + "&price=price-paid" + "$page=" + currentPage + "&page_size=12";
+        params.url = "https://api.techkids.vn/udemy/courses?search=" + searchValue + "&price=price-paid&page=1&page_size=12";
     }
     else if (paidSelection == 2){
-        params.url = "https://api.techkids.vn/udemy/courses?search=" + searchValue + "&price=price-free" + "$page=" + currentPage + "&page_size=12";
+        params.url = "https://api.techkids.vn/udemy/courses?search=" + searchValue + "&price=price-free&page=1&page_size=12";
     }
-    $.ajax(params);    
+    $.ajax(params);
 })
-$(window).scroll(function(){
-    if ($(this).scrollTop() + $(window).height() == $(document).height()){
-        console.log("YES");
-        const searchValue = $('#searchValue').val();
-        $("#loading").attr('style', '');
-        currentPage ++;
-        // $.ajax({
-        //     url: 
-        // })
-    }
-});
