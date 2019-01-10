@@ -43,8 +43,9 @@ $("#udemy").on("submit", function(event){
     }
     $.ajax(params);
 })
-$(window).scroll(function(){
+$(window).on('scroll',function(){
     if ($(this).scrollTop() + $(window).height() == $(document).height()){
+        $(window).off('scroll');
         $("#loading").attr('style', '');
         $.ajax({
             url: currentData.next,
@@ -73,5 +74,6 @@ $(window).scroll(function(){
                 console.log("error!" + err);
             }
         })
+        
     }
 });
