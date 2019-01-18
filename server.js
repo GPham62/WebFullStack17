@@ -15,47 +15,17 @@ const QuestionModel = require("./models/questionModel");
 
 app.use(bodyParser.urlencoded({extended: false}));
 
-// app.get("/style.css", (req, res) =>{
-//     res.sendFile(__dirname + "/resources/style.css");
-// });
-
-// request GET => http://localhost:6969/
 app.get("/", (request, response) => {
-    // const questions = JSON.parse(fs.readFileSync("./questions.json", {encoding: "utf-8"}));
-    QuestionModel.count({}, (err, totalQuestion)=>{
+    QuestionModel.countDocuments({}, (err, totalQuestion)=>{
         if (totalQuestion == 0) response.send("Chua co cau hoi nao !!");
         else{
-        // var i = Math.floor(Math.random() * questions.length);
-        // const randomQuestion = questions[i];
-         // response.send(JSON.stringify({a:5, b:6}));
-        // response.send(`<h1>
-        // ${
-        //      randomQuestion.content
-        // }
-        //  </h1>
-        //  <a href="/vote/${randomQuestion.id}/yes"><button type="submit" name="vote" value="yes">Đúng/Có/Phải</button></a>
-        //  <a href="/vote/${randomQuestion.id}/no"><button type="submit" name="vote" value ="no">Sai/Không/Trái</button></a>
-        // `);
         response.sendFile(__dirname + "/view/answer.html");
     }
     });
 });
 
 app.get("/api/random", (req,res) =>{
-    // const questions = JSON.parse(fs.readFileSync("./questions.json", {encoding: "utf-8"}));
-    // const randomQuestion =  questions[Math.floor(Math.random() * questions.length)];
-    // res.send({question: randomQuestion});
-
-    //MongoDB
-    // QuestionModel.find({}, (err, questions)=>{
-    //     if (err) console.log(err);
-    //     else {
-    //         const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
-    //         res.send({question: randomQuestion});
-    //     }
-    // })
-
-    QuestionModel.count({}, (err, totalQuestion) =>{
+    QuestionModel.countDocuments({}, (err, totalQuestion) =>{
         QuestionModel
         .findOne({})
         .skip(Math.floor(Math.random() * totalQuestion))
@@ -72,30 +42,34 @@ app.get("/question/:questionId", (req, res) => {
 
 app.get("/api/question/:questionId", (req, res) => {
     const questionId = req.params.questionId;
+    // QuesstionModel.findById(questionId, (err, questionFound) => {});
     QuestionModel.findOne({_id: questionId}).exec((err, questionFound) => {
         if (err) console.log(err)
+        else if (!questionFound || !questionFound._id) res.status(404).send({ message: "Question not exist!"});
         else res.send({question: questionFound});
     });
-    // const questions = JSON.parse(fs.readFileSync("./questions.json", {encoding: "utf-8"}));
-    // questions.forEach((question, index) => {
-    //     if (question.id == questionId){
-    //         questionFound = question;
-    //     }
-    // });
-    // res.send({question: questionFound});
 })
 
 app.get("/vote/:questionId/:vote", (req, res) => {
-    // const questions = JSON.parse(fs.readFileSync("./questions.json", {encoding: "utf-8"}));
     //params
     const questionId = req.params.questionId;
     const vote = req.params.vote;
+    // QuestionModel.findOneAndUpdate(
+    //     {_id: questionId},
+    //     {$inc: { [vote]: 1 }}, 
+    //     (err, questionUpdated) => {
+    //         if (err) console.log(err)
+    //         else  res.send({ message: "Success"});
+    // });
     QuestionModel.findOne({_id: questionId}, (err, questionFound) => {
         if (err) console.log(err);
+        else if (!questionFound || !questionFound._id) res.status(404).send({ message: "Question not exist!"});
         else {
-            questionFound.set({vote: questionFound[vote] ++});
-            questionFound.save();
-            res.redirect("/");
+            questionFound[vote] += 1;
+            questionFound.save((err) =>{
+                if (err) console.log(err)
+                else  res.send({ message: "Success"});
+            });
         }
     })
 });
@@ -111,15 +85,6 @@ app.get("/ask", (req, res) =>{
 });
 
 app.post("/addquestion", (req, res) =>{
-    // const questions = JSON.parse(fs.readFileSync("./questions.json", {encoding: "utf-8"}));
-    // console.log(questions);
-    // const newQuestion = {
-    //     content: req.body.questionContent
-    // };
-    // questions.push(newQuestion);
-    // console.log(questions);
-    // fs.writeFileSync("./questions.json", JSON.stringify(questions));
-    // res.redirect("/");
     QuestionModel.create({
         content: req.body.questionContent
     },
