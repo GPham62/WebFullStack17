@@ -3,8 +3,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const UserApi = require('./routers/userApi');
-
 const PostApi = require('./routers/postApi');
+const AuthApi = require('./routers/authApi');
 
 const app = express();
 
@@ -20,6 +20,14 @@ app.use(bodyParser.json());
 app.use('/api/users', UserApi);
 
 app.use('/api/posts', PostApi);
+
+app.use('/api/auth', AuthApi);
+
+app.get('/login', (req, res) =>{
+    res.sendFile(__dirname + "/page/login.html");
+})
+
+app.use(express.static('page'));
 
 app.listen(6699, (err)=>{
     if (err) console.log(err);

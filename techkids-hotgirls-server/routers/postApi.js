@@ -2,9 +2,19 @@ const express = require('express');
 const PostApi = express.Router();
 const PostModel = require('../models/postModel');
 
+// PostApi.use((req, res, next) =>{
+//     console.log("Middleware");
+//     next();
+// });
 //Read
 PostApi.get('/', (req, res) =>{
+    const { page=1, perPage=5 } = req.query;
     PostModel.find({})
+    .select({__v: 0})
+    .populate('author', '-_id -password -__v')
+    .populate('comments.author', '-id -password -__v')
+    .skip((page-1)*Number(perPage))
+    .limit(Number(perPage))
     .then((posts) =>{
         res.send(posts);
     })
@@ -15,8 +25,11 @@ PostApi.get('/', (req, res) =>{
 
 PostApi.get('/:postid', (req, res) =>{
     PostModel.findById(req.params.postid)
+    .select({__v: 0})
+    .populate('author', '-_id -password -__v')
+    .populate('comments.author', '-id -password -__v')
     .then((postFound) =>{
-        res.send(postFound);
+        res.send({data:postFound});
     })
     .catch((err) =>{
         res.send({error: err});
@@ -41,16 +54,12 @@ PostApi.post('/', (req, res) =>{
 
 //Update
 PostApi.put('/:postid', (req, res) =>{
-    const {picture, description, like, title, comments, views, author} = req.body;
+    console.log(req.body);
+    const {description, title} = req.body;
     PostModel.findById(req.params.postid)
     .then((postFound) =>{
-        postFound.picture = picture;
         postFound.description = description;
-        postFound.like = like;
         postFound.title = title;
-        postFound.comments = comments;
-        postFound.views = views;
-        postFound.author = author;
         return postFound.save();
     })
     .then((postUpdated) =>{
