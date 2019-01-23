@@ -10,7 +10,7 @@ $("#Login").on("submit", function(event){
             console.log(data);
             if (data.data == false){
                 $("#alertPassword").attr("class", "text-danger");
-                $("#alertPassword").text("Wrong Password!");
+                $("#alertPassword").text("Wrong Username or Password!");
             }
             else if (data.data == true){
                 $("#alertPassword").attr("class", "text-success");
